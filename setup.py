@@ -6,7 +6,7 @@ import sys
 
 
 setuptools.setup(
-    name="autoparser",
+    name="ABCParse",
     version="0.0.0rc",
     python_requires=">3.7.0",
     author="Michael E. Vinyard",
