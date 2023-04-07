@@ -1,5 +1,5 @@
 import unittest
-from _auto_parser import AutoParser
+from ..autoparser import AutoParser
 
 
 class TestAutoParser(unittest.TestCase):
