@@ -7,7 +7,7 @@ import sys
 
 setuptools.setup(
     name="autoparser",
-    version="0.0.0",
+    version="0.0.0rc",
     python_requires=">3.7.0",
     author="Michael E. Vinyard",
     author_email="mvinyard@broadinstitute.org",
