@@ -50,12 +50,12 @@ class ABCParse(ABC):
     def __hide__(self, key):
         return "_{}".format(key)
 
-    def __collect__(self, key, hidden_key, val):
+    def __collect__(self, public_key, private_key, val):
         if not hasattr(self, "_PARAMS"):
             self.__init_kwargs__()
             
-        self._PARAMS[hidden_key] = val
-        setattr(self, key, val)
+        self._PARAMS[public_key] = val
+        setattr(self, private_key, val)
 
     def __parse__(
         self,
@@ -106,5 +106,7 @@ class ABCParse(ABC):
                     self._collect_literal_kwargs(val)
                 else:
                     if (key in private) and (not key in public):
-                        hidden_key = self.__hide__(key)
-                    self.__collect__(key, hidden_key, val)
+                        private_key = self.__hide__(key)
+                    else:
+                        private_key = public_key
+                    self.__collect__(public_key, private_key, val)
