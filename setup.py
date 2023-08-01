@@ -7,7 +7,7 @@ import sys
 
 setuptools.setup(
     name="ABCParse",
-    version="0.0.5",
+    version="0.0.6",
     python_requires=">3.9.0",
     author="Michael E. Vinyard",
     author_email="mvinyard@broadinstitute.org",
