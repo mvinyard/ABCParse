@@ -4,7 +4,6 @@ from typing import Union, Dict, List
 import inspect
 
 
-
 # -- operational class: ------------------------------------------------------------------
 class KwargExtractor:
     def __init__(self, func):

@@ -2,111 +2,126 @@
 __module_name__ = "_abc_parse.py"
 __doc__ = """Better abstract base class for auto-parsing inputs."""
 __author__ = ", ".join(["Michael E. Vinyard"])
-__email__ = ", ".join(["mvinyard@broadinstitute.org"])
+__email__ = ", ".join(["mvinyard.ai@gmail.com"])
 
 
-# -- import packages: --------------------------------------------------------------------
-from abc import ABC
-from typing import Any
-import inspect
+# -- import packages: ----------------------------------------------------------
+import abc
 
 
-# -- Main class: -------------------------------------------------------------------------
-class ABCParse(ABC):
+# -- set typing: ---------------------------------------------------------------
+from typing import Dict, List, Any, Tuple
 
-    def __init__(self):
-        self._PARAMS = {}
-    
-    def __call__(self):
+
+# -- Controller class: ---------------------------------------------------------
+class ABCParse(abc.ABC):
+    _BUILT = False
+
+    def __init__(self, *args, **kwargs):
+        """
+        we avoid defining things in __init__ because this subsequently
+        mandates the use of `super().__init__()`
+        
+        Example
+        -------
+        ```
+        class DataConfiguration(utils.ABCParse):
+            def __init__(self, x=2, y=3, *args, **kwargs):
+                self.__parse__(locals(), public=[None])
+
+            def __call__(self, x=4, y=5, z=3, *args, **kwargs):
+                self.__update__(locals(), private=[None])
+        
+        
+        dc = DataConfiguration(alpha=0.2)
+        dc._PARAMS
+        dc(beta=0.4)
+        dc._PARAMS
+        dc._kwargs
+        dc._PARAMS
+        ```
+        """
         pass
-    
-    def __init_kwargs__(self):
+
+    def __build__(self) -> None:
         self._PARAMS = {}
-        
-    def _inspect(self, func: Any):
-        return list(inspect.signature(func).parameters.keys())
-        
-    @property
-    def _init_params(self):
-        return self._inspect(func=self.__init__)
-    
-    @property
-    def _call_params(self):
-        return self._inspect(func=self.__call__)
-    
-    @property
-    def _parse_params(self):
-        return self._inspect(func=self.__parse__)
+        self._IGNORE = ["self", "__class__"]
+        self._stored_private = []
+        self._stored_public = []
 
-    @property
-    def _collected_params(self):
-        return self._init_params + self._call_params + self._parse_params        
+        self._BUILT = True
 
-    def _collect_literal_kwargs(self, kwargs_val):
+    def __set__(
+        self, key: str, val: Any, public: List = [], private: List = []
+    ) -> None:
+        self._PARAMS[key] = val
         
-        for key, val in kwargs_val.items():
-            self.__collect__(key, val)
-    
-    def __hide__(self, key):
-        return "_{}".format(key)
+        if (key in private) and (not key in public):
+            self._stored_private.append(key)
+            key = f"_{key}"
+        else:
+            self._stored_public.append(key)
+        setattr(self, key, val)
 
-    def __collect__(self, public_key, private_key, val):
-        if not hasattr(self, "_PARAMS"):
-            self.__init_kwargs__()
+    def __set_existing__(self, key: str, val: Any) -> None:
+        
+        passed_key = key
+
+        if key in self._stored_private:
+            key = f"_{key}"
+
+        if passed_key == "kwargs":
+            attr = getattr(self, key)
+            attr.update(val)
+            setattr(self, key, attr)
+            self._PARAMS.update(val)
             
-        self._PARAMS[public_key] = val
-        setattr(self, private_key, val)
+        elif passed_key == "args":
+            attr = getattr(self, key)
+            attr += val
+            setattr(self, key, attr)
+            self._PARAMS[passed_key] += val
+            
+        else:
+            self._PARAMS[passed_key] = val
+            setattr(self, key, val)
 
-    def __parse__(
-        self,
-        kwargs:  dict,
-        ignore:  list = ["self"],
-        private: list = ["ignore", "private", "public"],
-        public:  list = [],
-        kwargs_key: str = "kwargs",
-    ):
-        """
-        Pass `locals()` or some other collection of kwargs to `kwargs` to
-        save them as attributes of the subclass.
-        
-        Parameters:
-        -----------
-        kwargs
-            typically `locals()`
-            type: dict
-        
-        ignore
-            type: list
-            default: ["self"]
-        
-        private
-            type: list
-            default: ["ignore", "private", "public"]
-        
-        public
-            type: list
-            default: []
-        
-        kwargs_key
-            type: str
-            default: "kwargs"
+    @property
+    def _STORED(self) -> List:
+        return self._stored_private + self._stored_public
 
-        Notes:
-        ------
-        (1) assumes all are public unless denoted in private
-        (2) If a public list is provided, all kwargs are shifted to private unless denoted in public.
-        """
+    def __setup_inputs__(self, kwargs, public, private, ignore) -> Tuple[List]:
+        if not self._BUILT:
+            self.__build__()
+
+        self._IGNORE += ignore
 
         if len(public) > 0:
             private = list(kwargs.keys())
 
+        return public, private
+
+    def __parse__(
+        self, kwargs: Dict, public: List = [], private: List = [], ignore: List = []
+    ) -> None:
+        """Central function of this class"""
+
+        public, private = self.__setup_inputs__(kwargs, public, private, ignore)
+
         for key, val in kwargs.items():
-            if not key in ignore:
-                if key == kwargs_key:
-                    self._collect_literal_kwargs(val)
-                else:
-                    if (key in private) and (not key in public):
-                        private_key = self.__hide__(key)
-                    else:
-                        private_key = public_key
-                    self.__collect__(public_key, private_key, val)
+            if not key in self._IGNORE:
+                self.__set__(key, val, public, private)
+
+    def __update__(
+        self, kwargs: Dict, public: List = [], private: List = [], ignore: List = []
+    ) -> None:
+        """To be called after __parse__ has already been called."""
+
+        public, private = self.__setup_inputs__(kwargs, public, private, ignore)
+
+        for key, val in kwargs.items():
+            if not (val is None) and (key in self._STORED):
+                self.__set_existing__(key, val)
+
+            elif not (val is None) and not (key in self._IGNORE):
+                self.__set__(key, val, public, private)
