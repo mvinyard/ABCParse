@@ -7,10 +7,10 @@ import sys
 
 setuptools.setup(
     name="ABCParse",
-    version="0.0.6rc0",
+    version="0.0.6",
     python_requires=">3.9.0",
     author="Michael E. Vinyard",
-    author_email="mvinyard@broadinstitute.org",
+    author_email="mvinyard.ai@gmail.com",
     url=None,
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
