@@ -145,6 +145,7 @@ class ABCParse(abc.ABC):
         Parameters
         ----------
         kwargs: Dict
+            Typically, `locals()`
         
         public: Optional[List] = [None]
         
