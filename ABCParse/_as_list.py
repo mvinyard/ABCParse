@@ -1,19 +1,17 @@
 
 
-# -- import local dependenecies: ----------------------------------------------
-from ._abc_parse import ABCParse
-
-
 # -- set typing: --------------------------------------------------------------
 from typing import Union, List, Any
 
 
 # -- controller class: --------------------------------------------------------
-class AsList(ABCParse):
+class AsList(object):
     """Enables flexible inputs as list with type-checking."""
 
     def __init__(self, *args, **kwargs):
-        self.__parse__(locals(), public=[None])
+        
+        """ """
+        ...
 
     @property
     def is_list(self) -> bool:
@@ -21,19 +19,19 @@ class AsList(ABCParse):
 
     def _is_target_type(self, value) -> bool:
         return isinstance(value, self._target_type)
-
-    @property
-    def list_values(self):
-        return self._as_list()
-
-    @property
-    def validated_target_types(self):
-        return all([self._is_target_type(val) for val in self.list_values])
-
-    def _as_list(self):
+    
+    def _as_list(self) -> List:
         if not self.is_list:
             return [self._input]
         return self._input
+    
+    @property
+    def list_values(self) -> List:
+        return self._as_list()
+
+    @property
+    def validated_target_types(self) -> bool:
+        return all([self._is_target_type(val) for val in self.list_values])
 
     def __call__(
         self,
@@ -53,7 +51,9 @@ class AsList(ABCParse):
         -------
         List[Any]
         """
-        self.__update__(locals(), public=[None])
+        
+        self._input = input
+        self._target_type = target_type
 
         assert self.validated_target_types, "Not all values match the target type"
 

@@ -10,7 +10,7 @@ import abc
 
 
 # -- set typing: ---------------------------------------------------------------
-from typing import Dict, List, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 # -- Controller class: ---------------------------------------------------------
@@ -102,9 +102,27 @@ class ABCParse(abc.ABC):
         return public, private
 
     def __parse__(
-        self, kwargs: Dict, public: List = [], private: List = [], ignore: List = []
+        self,
+        kwargs: Dict,
+        public: Optional[List] = [None],
+        private: Optional[List] = [],
+        ignore: Optional[List] = []
     ) -> None:
-        """Central function of this class"""
+        """
+        Made to be called during `cls.__init__` of the inherited class.
+        Central function of this autoparsing base class.
+        
+        Parameters
+        ----------
+        kwargs: Dict,
+        public: Optional[List] = [None],
+        private: Optional[List] = [],
+        ignore: Optional[List] = []
+        
+        Returns
+        -------
+        None
+        """
 
         public, private = self.__setup_inputs__(kwargs, public, private, ignore)
 
@@ -113,9 +131,33 @@ class ABCParse(abc.ABC):
                 self.__set__(key, val, public, private)
 
     def __update__(
-        self, kwargs: Dict, public: List = [], private: List = [], ignore: List = []
+        self,
+        kwargs: Dict,
+        public: Optional[List] = [None],
+        private: Optional[List] = [],
+        ignore: Optional[List] = [],
     ) -> None:
-        """To be called after __parse__ has already been called."""
+        """
+        
+        To be called after __parse__ has already been called (e.g., 
+        during `cls.__call__`) of the inherited class.
+        
+        Parameters
+        ----------
+        kwargs: Dict
+        
+        public: Optional[List] = [None]
+        
+        private: Optional[List] = []
+        
+        ignore: Optional[List] = []
+        
+        Second-most central function of this autoparsing base class.
+        
+        Returns
+        -------
+        None
+        """
 
         public, private = self.__setup_inputs__(kwargs, public, private, ignore)
 
