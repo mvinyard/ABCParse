@@ -4,10 +4,12 @@ import re
 import os
 import sys
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 setuptools.setup(
     name="ABCParse",
-    version="0.0.7rc1",
+    version="0.0.7",
     python_requires=">3.9.0",
     author="Michael E. Vinyard",
     author_email="mvinyard.ai@gmail.com",
@@ -16,7 +18,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     description="A better base class to automatically parse local args.",
     packages=setuptools.find_packages(),
-    install_requires=[],
+    install_requires=requirements,
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Programming Language :: Python :: 3.9",
