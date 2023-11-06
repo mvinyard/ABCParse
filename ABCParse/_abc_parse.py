@@ -5,8 +5,12 @@ __author__ = ", ".join(["Michael E. Vinyard"])
 __email__ = ", ".join(["mvinyard.ai@gmail.com"])
 
 
-# -- import packages: ----------------------------------------------------------
+# -- import packages: ---------------------------------------------------------
 import abc
+
+
+# -- import local dependencies: -----------------------------------------------
+from ._info_message import InfoMessage
 
 
 # -- set typing: ---------------------------------------------------------------
@@ -41,6 +45,7 @@ class ABCParse(abc.ABC):
         dc._PARAMS
         ```
         """
+        
         pass
 
     def __build__(self) -> None:
@@ -106,7 +111,9 @@ class ABCParse(abc.ABC):
         kwargs: Dict,
         public: Optional[List] = [None],
         private: Optional[List] = [],
-        ignore: Optional[List] = []
+        ignore: Optional[List] = [],
+        INFO: str = "INFO",
+        color: str = "BLUE",
     ) -> None:
         """
         Made to be called during `cls.__init__` of the inherited class.
@@ -129,7 +136,12 @@ class ABCParse(abc.ABC):
         for key, val in kwargs.items():
             if not key in self._IGNORE:
                 self.__set__(key, val, public, private)
-
+        
+        self._INFO = InfoMessage(INFO = INFO, color = color)
+        
+    def _update_info_msg(self, **kwargs):
+        self._INFO = self.InfoMessage(**kwargs)
+        
     def __update__(
         self,
         kwargs: Dict,

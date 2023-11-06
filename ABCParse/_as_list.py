@@ -1,7 +1,6 @@
 
-
 # -- set typing: --------------------------------------------------------------
-from typing import Union, List, Any
+from typing import Any, List, Optional, Union
 
 
 # -- controller class: --------------------------------------------------------
@@ -16,8 +15,14 @@ class AsList(object):
     @property
     def is_list(self) -> bool:
         return isinstance(self._input, List)
+    
+    @property
+    def _MULTIPLE_TARGET_TYPES(self):
+        return isinstance(self._target_type, List)
 
     def _is_target_type(self, value) -> bool:
+        if self._MULTIPLE_TARGET_TYPES:
+            return any([isinstance(value, target_type) for target_type in self._target_type])            
         return isinstance(value, self._target_type)
     
     def _as_list(self) -> List:
@@ -36,7 +41,7 @@ class AsList(object):
     def __call__(
         self,
         input: Union[List[Any], Any],
-        target_type: type = str,
+        target_type: Optional[Union[type, List[type]]] = None,
         *args,
         **kwargs,
     ):
@@ -45,7 +50,7 @@ class AsList(object):
         ----------
         input: Union[List[Any], Any]
 
-        target_type: typel, default = str
+        target_type: Optional[Union[type, List[type]]], default = None
 
         Returns
         -------
@@ -54,15 +59,16 @@ class AsList(object):
         
         self._input = input
         self._target_type = target_type
-
-        assert self.validated_target_types, "Not all values match the target type"
+        
+        if not self._target_type is None:
+            assert self.validated_target_types, "Not all values match the target type"
 
         return self.list_values
 
 
 # -- API-facing function: -----------------------------------------------------
 def as_list(
-    input: Union[List[Any], Any], target_type: type = str, *args, **kwargs,
+    input: Union[List[Any], Any], target_type: Optional[Union[type, List[type]]] = None, *args, **kwargs,
 ):
     """
     Pass input to type-consistent list.
@@ -71,7 +77,7 @@ def as_list(
     ----------
     input: Union[List[Any], Any]
 
-    target_type: typel, default = str
+    target_type: Optional[Union[type, List[type]]], default = None
         If not all values match the target type, an AssertionError is raised.
 
     Returns
