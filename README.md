@@ -1,7 +1,6 @@
 # ABCParse
 
-![PyPI - Downloads](https://img.shields.io/pypi/:dm/:abcparse)
-
+![PyPI - Downloads](https://img.shields.io/pypi/dm/abcparse)
 ![Python Tests](https://github.com/mvinyard/ABCParse/actions/workflows/python-tests.yml/badge.svg)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/ABCParse.svg)](https://pypi.python.org/pypi/ABCParse/)
 [![PyPI version](https://badge.fury.io/py/ABCParse.svg)](https://badge.fury.io/py/ABCParse)
