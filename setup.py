@@ -7,9 +7,12 @@ import sys
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
+with open('ABCParse/__version__.py') as v:
+    exec(v.read())
+
 setuptools.setup(
     name="ABCParse",
-    version="0.0.7",
+    version=__version__,
     python_requires=">3.9.0",
     author="Michael E. Vinyard",
     author_email="mvinyard.ai@gmail.com",
