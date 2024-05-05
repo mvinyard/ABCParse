@@ -1,6 +1,6 @@
 
 # -- import packages: --------------------------------------------------------------------
-from typing import Union, Dict, List
+from typing import Any, Callable, Dict, List, Union
 import inspect
 
 
@@ -69,25 +69,28 @@ class KwargExtractor:
 
 
 # -- API-facing function: ----------------------------------------------------------------
-def function_kwargs(func, kwargs=None, obj=None, ignore=["self"]):
+def function_kwargs(
+    func: Callable,
+    kwargs: Dict[str,Any] = None,
+    obj: Any = None,
+    ignore: List[str] = ["self", "kwargs"],
+):
     """
     Returns the subset of kwargs that can be used in the func.
 
-    Parameters:
-    -----------
-    func
-
-    kwargs
-        if obj is passed, this argument is overridden.
-
-    obj
-        if kwargs is passed, obj overrides.
+    Args:
+        func (Callable): 
+    
+        kwargs
+            if obj is passed, this argument is overridden.
+    
+        obj
+            if kwargs is passed, obj overrides.
 
     Returns:
-    --------
-    function_kwargs
-        type: list
+        function_kwargs
+            type: list
     """
 
-    kwarg_extractor = KwargExtractor(func)
-    return kwarg_extractor(kwargs, obj)
+    kwarg_extractor = KwargExtractor(func=func)
+    return kwarg_extractor(kwargs=kwargs, obj=obj, ignore=ignore)
