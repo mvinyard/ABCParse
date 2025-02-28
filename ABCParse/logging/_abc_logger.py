@@ -1,6 +1,5 @@
 # -- import packages: ---------------------------------------------------------
 import logging
-import os
 import pathlib
 import sys
 
@@ -58,7 +57,7 @@ class ABCLogger:
         file_level : Optional[str], default=None
             Logging level for the file handler. If None, uses the same level as the console handler.
         """
-        print(f"Initializing ABCLogger with file_path: {file_path}")
+
         self.name = name
         self.level = level
         self.file_level = file_level if file_level else level
