@@ -1,24 +1,12 @@
 #!/usr/bin/env python
 
 # -- import packages: ---------------------------------------------------------
-import unittest
+import ABCParse
 import io
 import logging
 import os
 import tempfile
-
-# -- import local dependencies: -----------------------------------------------
-from ABCParse import (
-    get_logger,
-    set_global_log_level,
-    debug,
-    info,
-    warning,
-    error,
-    critical,
-    ABCParse,
-)
-from ABCParse.logging import ABCLogger, _default_logger
+import unittest
 
 
 # -- Test class: --------------------------------------------------------------
@@ -45,7 +33,7 @@ class TestLogging(unittest.TestCase):
                 logger.setLevel(logging.DEBUG)
         
         # Patch the ABCLogger.__init__ method to use our test handler
-        self.original_init = ABCLogger.__init__
+        self.original_init = ABCParse.logging.ABCLogger.__init__
         
         def patched_init(self_logger, *args, **kwargs):
             # Call the original init
@@ -57,16 +45,16 @@ class TestLogging(unittest.TestCase):
             self_logger.logger.setLevel(logging.DEBUG)
         
         # Apply the patch
-        ABCLogger.__init__ = patched_init
+        ABCParse.logging.ABCLogger.__init__ = patched_init
         
         # Also patch the default logger
-        _default_logger.logger.handlers = []
-        _default_logger.logger.addHandler(self.test_handler)
-        _default_logger.logger.setLevel(logging.DEBUG)
+        ABCParse.logging._default_logger.logger.handlers = []
+        ABCParse.logging._default_logger.logger.addHandler(self.test_handler)
+        ABCParse.logging._default_logger.logger.setLevel(logging.DEBUG)
 
     def tearDown(self):
         # Restore the original init method
-        ABCLogger.__init__ = self.original_init
+        ABCParse.logging.ABCLogger.__init__ = self.original_init
         
         # Restore original loggers
         for name, config in self.original_loggers.items():
@@ -80,7 +68,7 @@ class TestLogging(unittest.TestCase):
 
     def test_get_logger(self):
         """Test that get_logger returns a properly configured logger."""
-        logger = get_logger(name="test_logger", level="debug")
+        logger = ABCParse.logging.get_logger(name="test_logger", level="debug")
         self.assertEqual(logger.name, "test_logger")
         self.assertEqual(logger.level, "debug")
         
@@ -98,18 +86,18 @@ class TestLogging(unittest.TestCase):
         self.captured_output.truncate(0)
         self.captured_output.seek(0)
         
-        set_global_log_level("debug")
+        ABCParse.logging.set_global_log_level("debug")
         
-        debug("Global debug")
-        info("Global info")
-        warning("Global warning")
+        ABCParse.logging.debug("Global debug")
+        ABCParse.logging.info("Global info")
+        ABCParse.logging.warning("Global warning")
         
         output = self.captured_output.getvalue()
         self.assertIn("Global debug", output)
         self.assertIn("Global info", output)
         self.assertIn("Global warning", output)
 
-    def test_log_to_file(self):
+    def test_log_to_file(self) -> None:
         """Test logging to a file."""
         # Create a temporary file
         fd, temp_path = tempfile.mkstemp()
@@ -117,7 +105,7 @@ class TestLogging(unittest.TestCase):
         
         try:
             # Test with our custom logger
-            logger = ABCLogger(name="TestFileLogger", file_path=temp_path)
+            logger = ABCParse.logging.ABCLogger(name="TestFileLogger", file_path=temp_path)
             
             try:
                 # Log a test message
@@ -141,7 +129,7 @@ class TestLogging(unittest.TestCase):
             except OSError:
                 pass  # File might already be deleted or inaccessible
 
-    def test_abc_parse_logging(self):
+    def test_abc_parse_logging(self) -> None:
         """Test that ABCParse class properly integrates with the logging system."""
         # Create a temporary file for logging
         fd, temp_path = tempfile.mkstemp()
