@@ -11,7 +11,7 @@ import unittest
 
 # -- Test class: --------------------------------------------------------------
 class TestLogging(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         # Capture output for testing
         self.captured_output = io.StringIO()
         
@@ -52,7 +52,7 @@ class TestLogging(unittest.TestCase):
         ABCParse.logging._default_logger.logger.addHandler(self.test_handler)
         ABCParse.logging._default_logger.logger.setLevel(logging.DEBUG)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Restore the original init method
         ABCParse.logging.ABCLogger.__init__ = self.original_init
         
@@ -66,7 +66,7 @@ class TestLogging(unittest.TestCase):
         
         self.captured_output.close()
 
-    def test_get_logger(self):
+    def test_get_logger(self) -> None:
         """Test that get_logger returns a properly configured logger."""
         logger = ABCParse.logging.get_logger(name="test_logger", level="debug")
         self.assertEqual(logger.name, "test_logger")
@@ -80,7 +80,7 @@ class TestLogging(unittest.TestCase):
         self.assertIn("Debug message", output)
         self.assertIn("Info message", output)
 
-    def test_global_log_functions(self):
+    def test_global_log_functions(self) -> None:
         """Test the global logging functions."""
         # Clear any previous output
         self.captured_output.truncate(0)
@@ -137,7 +137,7 @@ class TestLogging(unittest.TestCase):
         
         try:
             # Create a parser with logging to file
-            parser = ABCParse(
+            parser = ABCParse.ABCParse(
                 name="TestParser",
                 log_level="info",
                 log_file=temp_path
