@@ -5,9 +5,7 @@ import ABCParse
 import io
 import logging
 import os
-import tempfile
 import unittest
-
 
 # -- Test class: --------------------------------------------------------------
 class TestLogging(unittest.TestCase):
@@ -99,13 +97,9 @@ class TestLogging(unittest.TestCase):
 
     def test_log_to_file(self) -> None:
         """Test logging to a file."""
-        # Create a temporary file
-        fd, temp_path = tempfile.mkstemp()
-        os.close(fd)  # Close the file descriptor immediately
-        
         try:
             # Test with our custom logger
-            logger = ABCParse.logging.ABCLogger(name="TestFileLogger", file_path=temp_path)
+            logger = ABCParse.logging.ABCLogger(name="TestFileLogger", file_path="./abcparse.log")
             
             try:
                 # Log a test message
@@ -116,7 +110,7 @@ class TestLogging(unittest.TestCase):
                 logger.close()
                 
                 # Read the file and check if the message is there
-                with open(temp_path, 'r') as f:
+                with open("./abcparse.log", 'r') as f:
                     content = f.read()
                     assert test_message in content, f"Expected message not found in log file. Content: {content}"
             finally:
@@ -125,24 +119,17 @@ class TestLogging(unittest.TestCase):
         finally:
             # Clean up the temporary file
             try:
-                os.unlink(temp_path)
+                os.unlink("./abcparse.log")
             except OSError:
                 pass  # File might already be deleted or inaccessible
 
     def test_abc_parse_logging(self) -> None:
         """Test that ABCParse class properly integrates with the logging system."""
-        # Create a temporary file for logging
-        fd, temp_path = tempfile.mkstemp()
-        os.close(fd)  # Close the file descriptor immediately
         
         try:
             # Create a parser with logging to file
-            parser = ABCParse.ABCParse(
-                name="TestParser",
-                log_level="info",
-                log_file=temp_path
-            )
-            
+            parser = ABCParse.ABCParse()
+            parser.__build__()
             try:
                 # Test that the parser logs correctly
                 parser._logger.info("Test message from ABCParse")
@@ -151,8 +138,11 @@ class TestLogging(unittest.TestCase):
                 parser._logger.close()
                 
                 # Verify the message was logged to file
-                with open(temp_path, 'r') as f:
+                with open("./abcparse.log", 'r') as f:
                     content = f.read()
+                    print("--content--")
+                    print(content)
+                    print("--end--")
                     self.assertIn("Test message from ABCParse", content)
             finally:
                 # Ensure logger is closed even if assertions fail
@@ -161,7 +151,7 @@ class TestLogging(unittest.TestCase):
         finally:
             # Clean up the temporary file
             try:
-                os.unlink(temp_path)
+                os.unlink("./abcparse.log")
             except OSError:
                 pass  # File might already be deleted or inaccessible
 

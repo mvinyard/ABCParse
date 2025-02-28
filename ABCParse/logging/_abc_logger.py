@@ -147,7 +147,7 @@ class ABCLogger:
             finally:
                 self.file_handler = None
             
-    def close(self):
+    def close(self) -> None:
         """
         Close all handlers associated with this logger.
         This is particularly important for file handlers to ensure they flush and close properly.

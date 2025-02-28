@@ -47,8 +47,8 @@ class ABCParse(abc.ABC):
         # Initialize logger with class name and logging parameters
         self._logger = logging.get_logger(
             name=self.__class__.__name__,
-            level="warning",
-            file_path="abcparse.log"
+            level="info",
+            file_path="./abcparse.log"
         )
         self._logger.debug(f"Initializing {self.__class__.__name__}")
 
