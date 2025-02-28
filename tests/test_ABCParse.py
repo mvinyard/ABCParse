@@ -13,8 +13,7 @@ class TestABCParse(unittest.TestCase):
         
     def test_init(self) -> None:
         """Test that ABCParse initializes with expected default values."""
-        self.assertFalse(self.parser._BUILT)
-        self.assertIsInstance(self.parser._logger, ABCParse.logging.ABCLogger)
+        self.assertFalse(self.parser._BUILT)        
         
     def test_build(self) -> None:
         """Test the __build__ method initializes internal structures."""
@@ -25,6 +24,7 @@ class TestABCParse(unittest.TestCase):
         self.assertIn("__class__", self.parser._IGNORE)
         self.assertEqual(self.parser._stored_private, [])
         self.assertEqual(self.parser._stored_public, [])
+        self.assertIsInstance(self.parser._logger, ABCParse.logging.ABCLogger)
         
     def test_set(self) -> None:
         """Test the __set__ method for setting attributes."""

@@ -140,8 +140,9 @@ class ABCParse(abc.ABC):
         -------
         None
         """
-        self._logger.debug(f"Parsing kwargs: {kwargs}")
+
         public, private = self.__setup_inputs__(kwargs, public, private, ignore)
+        self._logger.debug(f"Parsing kwargs: {kwargs}")
 
         for key, val in kwargs.items():
             if not key in self._IGNORE:
