@@ -1,10 +1,11 @@
 # -- import packages: ---------------------------------------------------------
 import logging
 import os
+import pathlib
 import sys
 
 # -- import local modules: ----------------------------------------------------
-from ._format import DEFAULT_LOG_FORMAT, DEFAULT_DATE_FORMAT
+from ._format import DEFAULT_LOG_FORMAT, DEFAULT_DATE_FORMAT, DEFAULT_LOG_FILEPATH
 
 # -- set type hints: ----------------------------------------------------------
 from typing import Any, Dict, Optional
@@ -30,11 +31,12 @@ class ABCLogger:
     def __init__(
         self,
         name: str = "ABCParse",
-        level: str = "info",
+        level: str = "warning",
         format: str = DEFAULT_LOG_FORMAT,
         date_format: str = DEFAULT_DATE_FORMAT,
-        file_path: Optional[str] = None,
-        propagate: bool = False
+        file_path: Optional[str] = DEFAULT_LOG_FILEPATH,
+        propagate: bool = False,
+        file_level: Optional[str] = "debug",
     ) -> None:
         """
         Initialize the logger.
@@ -44,7 +46,7 @@ class ABCLogger:
         name : str, default="ABCParse"
             Name of the logger.
         level : str, default="info"
-            Logging level. One of: "debug", "info", "warning", "error", "critical".
+            Logging level for the console handler. One of: "debug", "info", "warning", "error", "critical".
         format : str, default=DEFAULT_LOG_FORMAT
             Log message format.
         date_format : str, default=DEFAULT_DATE_FORMAT
@@ -53,18 +55,26 @@ class ABCLogger:
             If provided, logs will be written to this file in addition to stdout.
         propagate : bool, default=False
             Whether to propagate logs to parent loggers.
+        file_level : Optional[str], default=None
+            Logging level for the file handler. If None, uses the same level as the console handler.
         """
+        print(f"Initializing ABCLogger with file_path: {file_path}")
         self.name = name
         self.level = level
+        self.file_level = file_level if file_level else level
         self.format = format
         self.date_format = date_format
         self.file_path = file_path
         self.file_handler = None
         self._file = None
+        self.console_handler = None
         
         # Create logger
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(LOG_LEVELS.get(level.lower(), logging.INFO))
+        self.logger.setLevel(min(
+            LOG_LEVELS.get(level.lower(), logging.INFO),
+            LOG_LEVELS.get(self.file_level.lower(), logging.INFO)
+        ))
         self.logger.propagate = propagate
         
         # Remove existing handlers to avoid duplicates when reconfiguring
@@ -74,9 +84,10 @@ class ABCLogger:
         self.formatter = logging.Formatter(format, date_format)
         
         # Create console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(self.formatter)
-        self.logger.addHandler(console_handler)
+        self.console_handler = logging.StreamHandler(sys.stdout)
+        self.console_handler.setFormatter(self.formatter)
+        self.console_handler.setLevel(LOG_LEVELS.get(level.lower(), logging.INFO))
+        self.logger.addHandler(self.console_handler)
         
         # Create file handler if file_path is provided
         if file_path:
@@ -97,16 +108,16 @@ class ABCLogger:
         """Set up file logging with proper error handling."""
         try:
             # Ensure directory exists
-            dir_path = os.path.dirname(os.path.abspath(file_path))
-            if dir_path and not os.path.exists(dir_path):
-                os.makedirs(dir_path, exist_ok=True)
-            
+            if not pathlib.Path(file_path).parent.exists():
+                pathlib.Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+                        
             # Open the file directly for more control
             self._file = open(file_path, 'w')
             
             # Also create a standard file handler
             self.file_handler = logging.FileHandler(file_path)
             self.file_handler.setFormatter(self.formatter)
+            self.file_handler.setLevel(LOG_LEVELS.get(self.file_level.lower(), logging.INFO))
             self.logger.addHandler(self.file_handler)
         except Exception as e:
             print(f"Error setting up file logging: {e}")
@@ -172,7 +183,7 @@ class ABCLogger:
         except:
             pass
     
-    def set_level(self, level: str) -> None:
+    def set_level(self, level: str, handler_type: str = "both") -> None:
         """
         Set the logging level.
         
@@ -180,43 +191,61 @@ class ABCLogger:
         ----------
         level : str
             Logging level. One of: "debug", "info", "warning", "error", "critical".
+        handler_type : str, default="both"
+            Which handler to set the level for. One of: "console", "file", "both".
         """
         if level.lower() in LOG_LEVELS:
-            self.logger.setLevel(LOG_LEVELS[level.lower()])
-            self.level = level.lower()
+            log_level = LOG_LEVELS[level.lower()]
+            
+            if handler_type.lower() in ["console", "both"]:
+                if self.console_handler:
+                    self.console_handler.setLevel(log_level)
+                self.level = level.lower()
+                
+            if handler_type.lower() in ["file", "both"]:
+                if self.file_handler:
+                    self.file_handler.setLevel(log_level)
+                self.file_level = level.lower()
+                
+            # Set the logger's level to the minimum of both handlers
+            min_level = min(
+                LOG_LEVELS.get(self.level.lower(), logging.INFO),
+                LOG_LEVELS.get(self.file_level.lower(), logging.INFO)
+            )
+            self.logger.setLevel(min_level)
     
     def debug(self, msg: str, *args, **kwargs) -> None:
         """Log a debug message."""
         self.logger.debug(msg, *args, **kwargs)
-        if LOG_LEVELS.get(self.level.lower(), logging.INFO) <= logging.DEBUG:
+        if LOG_LEVELS.get(self.file_level.lower(), logging.INFO) <= logging.DEBUG:
             self._write_to_file(f"DEBUG: {msg}")
         sys.stdout.flush()
     
     def info(self, msg: str, *args, **kwargs) -> None:
         """Log an info message."""
         self.logger.info(msg, *args, **kwargs)
-        if LOG_LEVELS.get(self.level.lower(), logging.INFO) <= logging.INFO:
+        if LOG_LEVELS.get(self.file_level.lower(), logging.INFO) <= logging.INFO:
             self._write_to_file(f"INFO: {msg}")
         sys.stdout.flush()
     
     def warning(self, msg: str, *args, **kwargs) -> None:
         """Log a warning message."""
         self.logger.warning(msg, *args, **kwargs)
-        if LOG_LEVELS.get(self.level.lower(), logging.INFO) <= logging.WARNING:
+        if LOG_LEVELS.get(self.file_level.lower(), logging.INFO) <= logging.WARNING:
             self._write_to_file(f"WARNING: {msg}")
         sys.stdout.flush()
     
     def error(self, msg: str, *args, **kwargs) -> None:
         """Log an error message."""
         self.logger.error(msg, *args, **kwargs)
-        if LOG_LEVELS.get(self.level.lower(), logging.INFO) <= logging.ERROR:
+        if LOG_LEVELS.get(self.file_level.lower(), logging.INFO) <= logging.ERROR:
             self._write_to_file(f"ERROR: {msg}")
         sys.stdout.flush()
     
     def critical(self, msg: str, *args, **kwargs) -> None:
         """Log a critical message."""
         self.logger.critical(msg, *args, **kwargs)
-        if LOG_LEVELS.get(self.level.lower(), logging.INFO) <= logging.CRITICAL:
+        if LOG_LEVELS.get(self.file_level.lower(), logging.INFO) <= logging.CRITICAL:
             self._write_to_file(f"CRITICAL: {msg}")
         sys.stdout.flush()
     

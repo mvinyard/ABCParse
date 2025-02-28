@@ -43,21 +43,21 @@ class ABCParse(abc.ABC):
         """
         ...
         
-    def _initialize_logger(self) -> None:
+    def _initialize_logger(self, level: str = "warning", file_path: str = logging._format.DEFAULT_LOG_FILEPATH) -> None:
         # Initialize logger with class name and logging parameters
         self._logger = logging.get_logger(
             name=self.__class__.__name__,
-            level="info",
-            file_path="./abcparse.log"
+            level=level,
+            file_path=file_path
         )
         self._logger.debug(f"Initializing {self.__class__.__name__}")
 
-    def __build__(self) -> None:
+    def __build__(self, level: str = "warning", file_path: str = logging._format.DEFAULT_LOG_FILEPATH) -> None:
         self._PARAMS = {}
         self._IGNORE = ["self", "__class__"]
         self._stored_private = []
         self._stored_public = []
-        self._initialize_logger()
+        self._initialize_logger(level, file_path)
         self._BUILT = True
         self._logger.debug("Built internal structures")
 

@@ -8,6 +8,7 @@ _default_logger = ABCLogger()
 from ._get_logger import get_logger
 from ._set_global_log_level import set_global_log_level
 from ._convenience_functions import debug, info, warning, error, critical
+from . import _format
 
 __all__ = [
     "ABCLogger",
@@ -17,4 +18,5 @@ __all__ = [
     "debug",
     "info",
     "warning",
+    "_format",
 ]
