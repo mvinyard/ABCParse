@@ -13,7 +13,7 @@ with open('ABCParse/__version__.py') as v:
 setuptools.setup(
     name="ABCParse",
     version=__version__,
-    python_requires=">=3.7.0",
+    python_requires=">=3.8.0",
     author="Michael E. Vinyard",
     author_email="mvinyard.ai@gmail.com",
     url="https://github.com/mvinyard/ABCParse",
@@ -30,7 +30,6 @@ setuptools.setup(
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
