@@ -41,12 +41,14 @@ class ABCParse(abc.ABC):
         dc._PARAMS
         ```
         """
+        ...
         
+    def _initialize_logger(self) -> None:
         # Initialize logger with class name and logging parameters
         self._logger = logging.get_logger(
             name=self.__class__.__name__,
-            level=kwargs.pop("log_level", "warning"),
-            file_path=kwargs.pop("log_file", None)
+            level="warning",
+            file_path="abcparse.log"
         )
         self._logger.debug(f"Initializing {self.__class__.__name__}")
 
@@ -55,7 +57,7 @@ class ABCParse(abc.ABC):
         self._IGNORE = ["self", "__class__"]
         self._stored_private = []
         self._stored_public = []
-
+        self._initialize_logger()
         self._BUILT = True
         self._logger.debug("Built internal structures")
 
