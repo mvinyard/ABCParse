@@ -56,7 +56,7 @@ class KwargExtractor:
                 if not val is None:
                     self._check_literal_kwargs(val)
 
-        self._logger.info(f"Extracted {len(self.func_kwargs)} kwargs for function {self.func.__name__}")
+        self._logger.debug(f"Extracted {len(self.func_kwargs)} kwargs for function {self.func.__name__}")
         return self.func_kwargs
 
     def _check_literal_kwargs(self, kwargs):
@@ -115,5 +115,5 @@ def function_kwargs(
     _logger.debug(f"function_kwargs called for function: {func.__name__}")
     kwarg_extractor = KwargExtractor(func=func)
     result = kwarg_extractor(kwargs=kwargs, obj=obj, ignore=ignore)
-    _logger.info(f"Extracted {len(result)} kwargs for function {func.__name__}")
+    _logger.debug(f"Extracted {len(result)} kwargs for function {func.__name__}")
     return result
