@@ -133,10 +133,10 @@ class TestLogging(unittest.TestCase):
             parser.__build__()
             try:
                 # Test that the parser logs correctly
-                parser._logger.info("Test message from ABCParse")
+                parser._cls_logger.info("Test message from ABCParse")
                 
                 # Ensure logger is closed to flush buffers
-                parser._logger.close()
+                parser._cls_logger.close()
                 
                 # Verify the message was logged to file
                 
@@ -146,7 +146,7 @@ class TestLogging(unittest.TestCase):
             finally:
                 # Ensure logger is closed even if assertions fail
                 if hasattr(parser, '_logger'):
-                    parser._logger.close()
+                    parser._cls_logger.close()
         finally:
             # Clean up the temporary file
             try:

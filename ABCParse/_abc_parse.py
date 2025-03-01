@@ -45,12 +45,12 @@ class ABCParse(abc.ABC):
         
     def _initialize_logger(self, level: str = "warning", file_path: str = logging._format.DEFAULT_LOG_FILEPATH) -> None:
         # Initialize logger with class name and logging parameters
-        self._logger = logging.get_logger(
+        self._cls_logger = logging.get_logger(
             name=self.__class__.__name__,
             level=level,
             file_path=file_path
         )
-        self._logger.debug(f"Initializing {self.__class__.__name__}")
+        self._cls_logger.debug(f"Initializing {self.__class__.__name__}")
 
     def __build__(self, level: str = "warning", file_path: str = logging._format.DEFAULT_LOG_FILEPATH) -> None:
         self._PARAMS = {}
@@ -59,7 +59,7 @@ class ABCParse(abc.ABC):
         self._stored_public = []
         self._initialize_logger(level, file_path)
         self._BUILT = True
-        self._logger.debug("Built internal structures")
+        self._cls_logger.debug("Built internal structures")
 
     def __set__(
         self, key: str, val: Any, public: List = [], private: List = []
@@ -69,10 +69,10 @@ class ABCParse(abc.ABC):
         if (key in private) and (not key in public):
             self._stored_private.append(key)
             key = f"_{key}"
-            self._logger.debug(f"Setting private attribute: {key}")
+            self._cls_logger.debug(f"Setting private attribute: {key}")
         else:
             self._stored_public.append(key)
-            self._logger.debug(f"Setting public attribute: {key}")
+            self._cls_logger.debug(f"Setting public attribute: {key}")
         setattr(self, key, val)
 
     def __set_existing__(self, key: str, val: Any) -> None:
@@ -87,19 +87,19 @@ class ABCParse(abc.ABC):
             attr.update(val)
             setattr(self, key, attr)
             self._PARAMS.update(val)
-            self._logger.debug(f"Updated kwargs: {val}")
+            self._cls_logger.debug(f"Updated kwargs: {val}")
             
         elif passed_key == "args":
             attr = getattr(self, key)
             attr += val
             setattr(self, key, attr)
             self._PARAMS[passed_key] += val
-            self._logger.debug(f"Updated args: {val}")
+            self._cls_logger.debug(f"Updated args: {val}")
             
         else:
             self._PARAMS[passed_key] = val
             setattr(self, key, val)
-            self._logger.debug(f"Updated attribute {key}: {val}")
+            self._cls_logger.debug(f"Updated attribute {key}: {val}")
 
     @property
     def _STORED(self) -> List:
@@ -110,11 +110,11 @@ class ABCParse(abc.ABC):
             self.__build__()
 
         self._IGNORE += ignore
-        self._logger.debug(f"Setup inputs with ignore list: {self._IGNORE}")
+        self._cls_logger.debug(f"Setup inputs with ignore list: {self._IGNORE}")
 
         if len(public) > 0:
             private = list(kwargs.keys())
-            self._logger.debug(f"Public attributes specified, setting all others as private")
+            self._cls_logger.debug(f"Public attributes specified, setting all others as private")
 
         return public, private
 
@@ -142,13 +142,13 @@ class ABCParse(abc.ABC):
         """
 
         public, private = self.__setup_inputs__(kwargs, public, private, ignore)
-        self._logger.debug(f"Parsing kwargs: {kwargs}")
+        self._cls_logger.debug(f"Parsing kwargs: {kwargs}")
 
         for key, val in kwargs.items():
             if not key in self._IGNORE:
                 self.__set__(key, val, public, private)
         
-        self._logger.info(f"Parsed {len(self._PARAMS)} parameters")
+        self._cls_logger.debug(f"Parsed {len(self._PARAMS)} parameters")
         
     def __update__(
         self,
@@ -179,7 +179,7 @@ class ABCParse(abc.ABC):
         -------
         None
         """
-        self._logger.debug(f"Updating with kwargs: {kwargs}")
+        self._cls_logger.debug(f"Updating with kwargs: {kwargs}")
         public, private = self.__setup_inputs__(kwargs, public, private, ignore)
 
         updated_count = 0
@@ -194,4 +194,7 @@ class ABCParse(abc.ABC):
                 self.__set__(key, val, public, private)
                 new_count += 1
         
-        self._logger.info(f"Updated {updated_count} existing parameters and added {new_count} new parameters")
+        self._cls_logger.debug(f"Updated {updated_count} existing parameters and added {new_count} new parameters")
+
+    def __repr__(self) -> str:
+        return "ABCParse.ABCParse"
