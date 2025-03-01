@@ -87,7 +87,7 @@ class AsList(object):
         
         if not self._target_type is None:
             assert self.validated_target_types, "Not all values match the target type"
-            self._logger.info(f"Validated {len(self.list_values)} values against target type(s)")
+            self._logger.debug(f"Validated {len(self.list_values)} values against target type(s)")
 
         return self.list_values
 
@@ -116,5 +116,5 @@ def as_list(
     _logger.debug(f"as_list called with input: {input}, target_type: {target_type}")
     _as_list = AsList()
     result = _as_list(input=input, target_type=target_type, *args, **kwargs)
-    _logger.info(f"Converted to list with {len(result)} elements")
+    _logger.debug(f"Converted to list with {len(result)} elements")
     return result
