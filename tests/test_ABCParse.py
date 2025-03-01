@@ -24,7 +24,7 @@ class TestABCParse(unittest.TestCase):
         self.assertIn("__class__", self.parser._IGNORE)
         self.assertEqual(self.parser._stored_private, [])
         self.assertEqual(self.parser._stored_public, [])
-        self.assertIsInstance(self.parser._logger, ABCParse.logging.ABCLogger)
+        self.assertIsInstance(self.parser._cls_logger, ABCParse.logging.ABCLogger)
         
     def test_set(self) -> None:
         """Test the __set__ method for setting attributes."""
