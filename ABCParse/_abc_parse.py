@@ -142,14 +142,16 @@ class ABCParse(abc.ABC):
         """
 
         public, private = self.__setup_inputs__(kwargs, public, private, ignore)
-        self._cls_logger.debug(f"Parsing kwargs: {kwargs}")
-
+        
+        # First set all attributes
         for key, val in kwargs.items():
             if not key in self._IGNORE:
                 self.__set__(key, val, public, private)
         
+        # Then log after attributes are set
+        self._cls_logger.debug(f"Parsing kwargs: {kwargs}")
         self._cls_logger.debug(f"Parsed {len(self._PARAMS)} parameters")
-        
+
     def __update__(
         self,
         kwargs: Dict,
@@ -179,12 +181,12 @@ class ABCParse(abc.ABC):
         -------
         None
         """
-        self._cls_logger.debug(f"Updating with kwargs: {kwargs}")
         public, private = self.__setup_inputs__(kwargs, public, private, ignore)
 
         updated_count = 0
         new_count = 0
 
+        # First update/set all attributes
         for key, val in kwargs.items():
             if not (val is None) and (key in self._STORED):
                 self.__set_existing__(key, val)
@@ -194,6 +196,7 @@ class ABCParse(abc.ABC):
                 self.__set__(key, val, public, private)
                 new_count += 1
         
+        # Then log after attributes are set
         self._cls_logger.debug(f"Updated {updated_count} existing parameters and added {new_count} new parameters")
 
     def __repr__(self) -> str:
