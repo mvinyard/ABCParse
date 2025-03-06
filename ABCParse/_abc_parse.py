@@ -1,9 +1,3 @@
-__module_name__ = "_abc_parse.py"
-__doc__ = """Better abstract base class for auto-parsing inputs."""
-__author__ = ", ".join(["Michael E. Vinyard"])
-__email__ = ", ".join(["mvinyard.ai@gmail.com"])
-
-
 # -- import packages: ---------------------------------------------------------
 import abc
 
@@ -15,11 +9,14 @@ from . import logging
 
 # -- Controller class: --------------------------------------------------------
 class ABCParse(abc.ABC):
+    """
+    Better abstract base class for auto-parsing inputs.
+    """
     _BUILT = False
 
     def __init__(self, *args, **kwargs) -> None:
         """
-        we avoid defining things in __init__ because this subsequently
+        We avoid defining things in __init__ because this subsequently
         mandates the use of `super().__init__()`
         
         Example
@@ -147,10 +144,6 @@ class ABCParse(abc.ABC):
         for key, val in kwargs.items():
             if not key in self._IGNORE:
                 self.__set__(key, val, public, private)
-        
-        # Then log after attributes are set
-        self._cls_logger.debug(f"Parsing kwargs: {kwargs}")
-        self._cls_logger.debug(f"Parsed {len(self._PARAMS)} parameters")
 
     def __update__(
         self,
